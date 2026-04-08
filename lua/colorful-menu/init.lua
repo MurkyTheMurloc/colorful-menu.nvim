@@ -35,6 +35,9 @@ M.config = {
             -- see https://github.com/xzbdmw/colorful-menu.nvim/issues/42
             extra_info_hl = "@comment",
         },
+        tsgo = {
+            extra_info_hl = "@comment",
+        },
         zls = {
             align_type_to_right = true,
         },
@@ -131,6 +134,9 @@ local function _highlights(completion_item, ls)
         item = require("colorful-menu.languages.typescript").ts_server(completion_item, ls)
         --
     elseif ls == "vtsls" then
+        item = require("colorful-menu.languages.typescript").vtsls(completion_item, ls)
+        --
+    elseif ls == "tsgo" then
         item = require("colorful-menu.languages.typescript").vtsls(completion_item, ls)
         --
     elseif ls == "zls" then
