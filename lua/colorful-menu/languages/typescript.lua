@@ -109,7 +109,14 @@ function M.vtsls(completion_item, ls)
 
     local description = completion_item.labelDetails and completion_item.labelDetails.description
     local detail = completion_item.detail
-    local type_info = description or detail
+
+    local type_info
+    if description and description ~= "" then
+        type_info = description
+    elseif detail and detail ~= "" then
+        local after_colon = detail:match(":%s*(.+)$")
+        type_info = after_colon or detail
+    end
 
     local highlights = {
         {
