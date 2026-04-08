@@ -114,8 +114,7 @@ function M.vtsls(completion_item, ls)
     if description and description ~= "" then
         type_info = description
     elseif detail and detail ~= "" then
-        local after_colon = detail:match(":%s*(.+)$")
-        type_info = after_colon or detail
+        type_info = detail:match(":%s*(.+)$")
     end
 
     local highlights = {
