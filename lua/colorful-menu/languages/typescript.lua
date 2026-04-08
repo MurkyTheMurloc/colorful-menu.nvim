@@ -71,7 +71,6 @@ function M.ts_server(completion_item, ls)
 end
 
 -- see https://github.com/zed-industries/zed/pull/13043
--- Untested.
 ---@param completion_item lsp.CompletionItem
 ---@param ls string
 ---@return CMHighlights
@@ -102,12 +101,15 @@ function M.vtsls(completion_item, ls)
         highlight_name = "@property"
     elseif kind == Kind.Variable then
         highlight_name = "@variable"
+    elseif kind == Kind.Keyword then
+        highlight_name = "@keyword"
     else
         highlight_name = config.fallback_highlight
     end
 
     local description = completion_item.labelDetails and completion_item.labelDetails.description
     local detail = completion_item.detail
+    local type_info = description or detail
 
     local highlights = {
         {
@@ -116,20 +118,19 @@ function M.vtsls(completion_item, ls)
         },
     }
     local text = label
-    if config.ls.vtsls.extra_info_hl ~= false then
-        if description then
-            text = label .. " " .. one_line(description)
-            table.insert(highlights, {
-                config.ls.vtsls.extra_info_hl,
-                range = { #label + 1, #text },
-            })
-        elseif detail then
-            text = label .. " " .. one_line(detail)
-            table.insert(highlights, {
-                config.ls.vtsls.extra_info_hl,
-                range = { #label + 1, #text },
-            })
+
+    if type_info and config.ls.vtsls.extra_info_hl ~= false then
+        local type_str = one_line(type_info)
+        if config.ls.vtsls.align_type_to_right then
+            local spaces = utils.align_spaces_bell(label, type_str)
+            text = label .. spaces .. type_str
+        else
+            text = label .. " " .. type_str
         end
+        table.insert(highlights, {
+            config.ls.vtsls.extra_info_hl,
+            range = { #label + 1, #text },
+        })
     end
 
     return {
