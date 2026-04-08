@@ -127,16 +127,32 @@ function M.vtsls(completion_item, ls)
 
     if type_info and config.ls.vtsls.extra_info_hl ~= false then
         local type_str = one_line(type_info)
+        local spaces
         if config.ls.vtsls.align_type_to_right then
-            local spaces = utils.align_spaces_bell(label, type_str)
+            spaces = utils.align_spaces_bell(label, type_str)
             text = label .. spaces .. type_str
         else
-            text = label .. " " .. type_str
+            spaces = " "
+            text = label .. spaces .. type_str
         end
-        table.insert(highlights, {
-            config.ls.vtsls.extra_info_hl,
-            range = { #label + 1, #text },
-        })
+        local type_start = #label + #spaces
+        local type_end = #text
+        local wrapper = "type __x = " .. type_str
+        local prefix = #"type __x = "
+        local type_hl = utils.highlight_range(wrapper, ls, prefix, prefix + #type_str)
+        if type_hl and #type_hl.highlights > 0 then
+            for _, hl in ipairs(type_hl.highlights) do
+                table.insert(highlights, {
+                    hl[1],
+                    range = { type_start + hl.range[1], type_start + hl.range[2] },
+                })
+            end
+        else
+            table.insert(highlights, {
+                config.ls.vtsls.extra_info_hl,
+                range = { type_start, type_end },
+            })
+        end
     end
 
     return {
